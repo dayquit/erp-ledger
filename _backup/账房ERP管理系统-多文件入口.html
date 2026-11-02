@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>账房 ERP · 进销存与财务管理</title>
+<meta name="description" content="账房 ERP：涵盖仪表盘、客户、产品、销售、采购、出入库、库存、财务对账、账号管控与系统设置的进销存一体化管理系统">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23c23a26'/%3E%3Cpath d='M14 16h36v6H14zM20 28h24v4H20zM14 40h36v8H14z' fill='%23faf8f1'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://miaoda.feishu.cn" crossorigin>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- ===== 登录 / 账号切换 ===== -->
+<div id="lockScreen" class="lock hidden" aria-hidden="true">
+  <div class="lock-panel card">
+    <div class="lock-brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <h1 class="brand-name">账房 ERP</h1>
+        <p class="brand-sub">进销存 · 财务 · 一体化经营台账</p>
+      </div>
+    </div>
+    <p class="lock-tip">请输入账号与密码登录系统</p>
+    <div class="field">
+      <label for="lockUser">账号</label>
+      <input id="lockUser" type="text" placeholder="请输入账号，如 admin" autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="lockPwd">密码</label>
+      <input id="lockPwd" type="password" placeholder="请输入密码" autocomplete="current-password">
+    </div>
+    <button id="lockEnter" class="btn btn-verm btn-block">进入账房</button>
+    <p class="lock-hint">内置账号：admin / linxiao / chenbin / zhouqiang / suqing / visitor，密码均为 123456</p>
+  </div>
+</div>
+
+<!-- ===== 应用外壳 ===== -->
+<div id="app" class="app hidden">
+  <aside id="sidebar" class="sidebar" aria-label="主导航">
+    <div id="sideInner" class="side-inner"></div>
+  </aside>
+  <div id="mask" class="mask" aria-hidden="true"></div>
+
+  <div class="main">
+    <header id="topbar" class="topbar">
+      <button id="btnMenu" class="icon-btn menu-btn" aria-label="打开导航" type="button"></button>
+      <div id="crumb" class="crumb"></div>
+      <div class="top-actions">
+        <div id="searchBox" class="searchbox">
+          <span class="search-ic" id="searchIc"></span>
+          <input id="searchInput" type="search" placeholder="全局搜索 客户 / 产品 / 单据" autocomplete="off" aria-label="全局搜索">
+          <div id="searchRes" class="dropdown search-res hidden"></div>
+        </div>
+        <button id="btnBell" class="icon-btn" aria-label="待办提醒" type="button" onclick="openBellPanel()">
+          <span id="bellIc"></span>
+          <span id="bellBadge" class="badge hidden">0</span>
+        </button>
+        <button id="btnUser" class="user-chip" type="button">
+          <span id="userAv" class="user-av"></span>
+          <span class="user-meta">
+            <span id="userName" class="user-name"></span>
+            <span id="userRole" class="user-role"></span>
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <main id="view" class="view" tabindex="-1"></main>
+  </div>
+</div>
+
+<!-- 下拉面板：待办 / 用户菜单 -->
+<div id="dropdownRoot" class="dropdown-root"></div>
+<div id="bellRoot" class="dropdown-root"></div>
+
+<!-- 弹层 / 轻提示 -->
+<div id="modalRoot" class="modal-root"></div>
+<div id="toastRoot" class="toast-root" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js" integrity="sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss" crossorigin="anonymous"></script>
+<script src="js/core.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/views1.js"></script>
+<script src="js/views2.js"></script>
+<script src="js/views3.js"></script>
+<script src="js/main.js"></script>
+<script src="js/regions/上海市.js"></script>
+<script src="js/regions/云南省.js"></script>
+<script src="js/regions/内蒙古自治区.js"></script>
+<script src="js/regions/北京市.js"></script>
+<script src="js/regions/台湾省.js"></script>
+<script src="js/regions/吉林省.js"></script>
+<script src="js/regions/四川省.js"></script>
+<script src="js/regions/天津市.js"></script>
+<script src="js/regions/宁夏回族自治区.js"></script>
+<script src="js/regions/安徽省.js"></script>
+<script src="js/regions/山东省.js"></script>
+<script src="js/regions/山西省.js"></script>
+<script src="js/regions/广东省.js"></script>
+<script src="js/regions/广西壮族自治区.js"></script>
+<script src="js/regions/新疆维吾尔自治区.js"></script>
+<script src="js/regions/江苏省.js"></script>
+<script src="js/regions/江西省.js"></script>
+<script src="js/regions/河北省.js"></script>
+<script src="js/regions/河南省.js"></script>
+<script src="js/regions/浙江省.js"></script>
+<script src="js/regions/海南省.js"></script>
+<script src="js/regions/湖北省.js"></script>
+<script src="js/regions/湖南省.js"></script>
+<script src="js/regions/澳门特别行政区.js"></script>
+<script src="js/regions/甘肃省.js"></script>
+<script src="js/regions/福建省.js"></script>
+<script src="js/regions/西藏自治区.js"></script>
+<script src="js/regions/贵州省.js"></script>
+<script src="js/regions/辽宁省.js"></script>
+<script src="js/regions/重庆市.js"></script>
+<script src="js/regions/陕西省.js"></script>
+<script src="js/regions/青海省.js"></script>
+<script src="js/regions/香港特别行政区.js"></script>
+<script src="js/regions/黑龙江省.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
